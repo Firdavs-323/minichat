@@ -1,0 +1,381 @@
+{% extends "base.html" %}
+
+{% block title %}Kontaktlarim - Mini Chat{% endblock %}
+
+{% block content %}
+<div class="contacts-container">
+    <div class="contacts-header">
+        <h1>📞 Kontaktlarim</h1>
+        <p>Sizning barcha kontaktlaringiz</p>
+    </div>
+    
+    <div class="contacts-actions">
+        <a href="{{ url_for('search_users') }}" class="btn-add-contact">
+            <span class="btn-icon">➕</span>
+            Yangi kontakt qo'shish
+        </a>
+    </div>
+    
+    <div class="contacts-stats">
+        <div class="stat-card">
+            <span class="stat-number">{{ contacts|length }}</span>
+            <span class="stat-label">Umumiy kontaktlar</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ contacts|selectattr('is_online', 'equalto', true)|list|length }}</span>
+            <span class="stat-label">Online</span>
+        </div>
+    </div>
+    
+    <div class="contacts-list">
+        {% if contacts %}
+            {% for contact in contacts %}
+                <div class="contact-card">
+                    <div class="contact-avatar">
+                        <span class="avatar-icon">👤</span>
+                        {% if contact.is_online %}
+                            <span class="online-badge" title="Online"></span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="contact-info">
+                        <h3 class="contact-name">
+                            {{ contact.first_name or contact.username }}
+                            {% if contact.last_name %} {{ contact.last_name }}{% endif %}
+                        </h3>
+                        
+                        <p class="contact-username">@{{ contact.username }}</p>
+                        
+                        {% if contact.email %}
+                            <p class="contact-email">{{ contact.email }}</p>
+                        {% endif %}
+                        
+                        <div class="contact-status {% if contact.is_online %}online{% endif %}">
+                            {% if contact.is_online %}
+                                <span class="status-dot online"></span>
+                                Online
+                            {% else %}
+                                <span class="status-dot offline"></span>
+                                Oxirgi ko'rilgan: {{ contact.last_seen.strftime('%H:%M, %d.%m.%Y') if contact.last_seen else 'Noma\'lum' }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="contact-actions">
+                        <a href="{{ url_for('chat', user_id=contact.id) }}" class="btn-chat-action" title="Chat yozish">
+                            <span class="action-icon">💬</span>
+                            <span class="action-text">Chat</span>
+                        </a>
+                        
+                        <a href="{{ url_for('remove_contact', user_id=contact.id) }}" 
+                           class="btn-remove-action" 
+                           title="Kontaktni o'chirish"
+                           onclick="return confirm('{{ contact.username }} kontaktlardan o\'chirilsinmi?')">
+                            <span class="action-icon">❌</span>
+                            <span class="action-text">O'chirish</span>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-contacts">
+                <div class="no-contacts-icon">📭</div>
+                <h3>Kontaktlar mavjud emas</h3>
+                <p>Hali hech qanday kontakt qo'shmagansiz</p>
+                <a href="{{ url_for('search_users') }}" class="btn-find-contacts">
+                    🔍 Kontakt qidirish
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .contacts-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .contacts-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .contacts-header h1 {
+        color: white;
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .contacts-header p {
+        color: rgba(255,255,255,0.9);
+        font-size: 1.1rem;
+    }
+    
+    .contacts-actions {
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .btn-add-contact {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: white;
+        color: #667eea;
+        padding: 15px 40px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 1.1rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        transition: all 0.3s;
+    }
+    
+    .btn-add-contact:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    
+    .btn-icon {
+        font-size: 1.3rem;
+    }
+    
+    .contacts-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .stat-number {
+        display: block;
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #667eea;
+        line-height: 1;
+        margin-bottom: 5px;
+    }
+    
+    .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .contacts-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .contact-card {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 20px;
+        align-items: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        transition: all 0.3s;
+    }
+    
+    .contact-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+    
+    .contact-avatar {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    
+    .avatar-icon {
+        font-size: 2rem;
+    }
+    
+    .online-badge {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 15px;
+        height: 15px;
+        background: #4CAF50;
+        border: 3px solid white;
+        border-radius: 50%;
+    }
+    
+    .contact-info {
+        flex: 1;
+    }
+    
+    .contact-name {
+        margin: 0 0 5px 0;
+        color: #333;
+        font-size: 1.3rem;
+    }
+    
+    .contact-username {
+        margin: 0 0 5px 0;
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .contact-email {
+        margin: 0 0 8px 0;
+        color: #999;
+        font-size: 0.85rem;
+    }
+    
+    .contact-status {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.9rem;
+        color: #666;
+    }
+    
+    .contact-status.online {
+        color: #4CAF50;
+        font-weight: 500;
+    }
+    
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    
+    .status-dot.online {
+        background: #4CAF50;
+        box-shadow: 0 0 10px #4CAF50;
+    }
+    
+    .status-dot.offline {
+        background: #999;
+    }
+    
+    .contact-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn-chat-action, .btn-remove-action {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+        border-radius: 10px;
+        text-decoration: none;
+        transition: all 0.3s;
+        min-width: 70px;
+    }
+    
+    .btn-chat-action {
+        background: #667eea;
+        color: white;
+    }
+    
+    .btn-chat-action:hover {
+        background: #5a67d8;
+        transform: translateY(-3px);
+    }
+    
+    .btn-remove-action {
+        background: #f44336;
+        color: white;
+    }
+    
+    .btn-remove-action:hover {
+        background: #da190b;
+        transform: translateY(-3px);
+    }
+    
+    .action-icon {
+        font-size: 1.5rem;
+        margin-bottom: 5px;
+    }
+    
+    .action-text {
+        font-size: 0.8rem;
+    }
+    
+    .no-contacts {
+        background: white;
+        border-radius: 20px;
+        padding: 60px 20px;
+        text-align: center;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+    
+    .no-contacts-icon {
+        font-size: 5rem;
+        margin-bottom: 20px;
+    }
+    
+    .no-contacts h3 {
+        color: #333;
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+    }
+    
+    .no-contacts p {
+        color: #666;
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+    }
+    
+    .btn-find-contacts {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 50px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 1.1rem;
+        transition: all 0.3s;
+    }
+    
+    .btn-find-contacts:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+    
+    @media (max-width: 768px) {
+        .contact-card {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+        
+        .contact-avatar {
+            margin: 0 auto;
+        }
+        
+        .contact-actions {
+            justify-content: center;
+        }
+        
+        .contacts-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

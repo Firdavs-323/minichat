@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+
+{% block title %}Foydalanuvchi qidirish - Mini Chat{% endblock %}
+
+{% block content %}
+<div class="search-container">
+    <div class="search-header">
+        <h1>🔍 Foydalanuvchi qidirish</h1>
+        <p>Do'stlaringizni ismi, username yoki email orqali qidiring</p>
+    </div>
+    
+    <div class="search-box">
+        <form method="POST" action="{{ url_for('search_users') }}" class="search-form">
+            {{ form.hidden_tag() }}
+            
+            <div class="input-group">
+                {{ form.search(class="form-control", placeholder="Ism, username yoki email...", value=search_query) }}
+                <button type="submit" class="search-btn">Qidirish</button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="search-results">
+        {% if users %}
+            <h3 class="results-title">Qidiruv natijalari ({{ users|length }} ta)</h3>
+            
+            <div class="users-grid">
+                {% for user in users %}
+                    <div class="user-card">
+                        <div class="user-avatar">
+                            <span class="avatar-icon">👤</span>
+                        </div>
+                        
+                        <div class="user-details">
+                            <h3 class="user-name">
+                                {{ user.first_name or user.username }}
+                                {% if user.last_name %} {{ user.last_name }}{% endif %}
+                            </h3>
+                            
+                            <p class="user-username">@{{ user.username }}</p>
+                            
+                            {% if user.email %}
+                                <p class="user-email">{{ user.email }}</p>
+                            {% endif %}
+                            
+                            <div class="user-status {% if user.is_online %}online{% endif %}">
+                                {{ "🟢 Online" if user.is_online else "⚪ Offline" }}
+                            </div>
+                        </div>
+                        
+                        <div class="user-actions">
+                            {% if current_user.is_contact(user) %}
+                                <span class="contact-badge">✅ Kontakt</span>
+                                <a href="{{ url_for('chat', user_id=user.id) }}" class="btn-chat">💬 Chat</a>
+                                <a href="{{ url_for('remove_contact', user_id=user.id) }}" 
+                                   class="btn-remove" 
+                                   onclick="return confirm('{{ user.username }} kontaktlardan o\'chirilsinmi?')">
+                                    ❌ O'chirish
+                                </a>
+                            {% else %}
+                                <a href="{{ url_for('add_contact', user_id=user.id) }}" class="btn-add">
+                                    📞 Kontaktga qo'shish
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+        {% elif search_query %}
+            <div class="no-results">
+                <p>😕 Hech qanday foydalanuvchi topilmadi</p>
+                <p class="small">"{{ search_query }}" bo'yicha hech narsa topilmadi</p>
+            </div>
+        {% else %}
+            <div class="search-placeholder">
+                <p>🔎 Qidirishni boshlash uchun yuqoriga ism yozing</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .search-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .search-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .search-header h1 {
+        color: white;
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .search-header p {
+        color: rgba(255,255,255,0.9);
+        font-size: 1.1rem;
+    }
+    
+    .search-box {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+    
+    .input-group {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .input-group .form-control {
+        flex: 1;
+        padding: 15px;
+        font-size: 1.1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        transition: all 0.3s;
+    }
+    
+    .input-group .form-control:focus {
+        border-color: #667eea;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .search-btn {
+        padding: 15px 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .results-title {
+        color: white;
+        margin-bottom: 20px;
+        font-size: 1.3rem;
+    }
+    
+    .users-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 20px;
+    }
+    
+    .user-card {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        transition: all 0.3s;
+    }
+    
+    .user-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+    
+    .user-avatar {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .avatar-icon {
+        font-size: 2rem;
+    }
+    
+    .user-details {
+        flex: 1;
+    }
+    
+    .user-name {
+        margin: 0 0 5px 0;
+        color: #333;
+        font-size: 1.2rem;
+    }
+    
+    .user-username {
+        margin: 0 0 5px 0;
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .user-email {
+        margin: 0 0 5px 0;
+        color: #999;
+        font-size: 0.85rem;
+    }
+    
+    .user-status {
+        font-size: 0.85rem;
+        color: #666;
+    }
+    
+    .user-status.online {
+        color: #4CAF50;
+        font-weight: 500;
+    }
+    
+    .user-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 120px;
+    }
+    
+    .btn-add, .btn-chat, .btn-remove {
+        padding: 8px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        text-align: center;
+        transition: all 0.3s;
+    }
+    
+    .btn-add {
+        background: #4CAF50;
+        color: white;
+    }
+    
+    .btn-add:hover {
+        background: #45a049;
+        transform: translateY(-2px);
+    }
+    
+    .btn-chat {
+        background: #667eea;
+        color: white;
+    }
+    
+    .btn-chat:hover {
+        background: #5a67d8;
+        transform: translateY(-2px);
+    }
+    
+    .btn-remove {
+        background: #f44336;
+        color: white;
+    }
+    
+    .btn-remove:hover {
+        background: #da190b;
+        transform: translateY(-2px);
+    }
+    
+    .contact-badge {
+        background: #e0e0e0;
+        color: #333;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        text-align: center;
+    }
+    
+    .no-results {
+        background: white;
+        border-radius: 15px;
+        padding: 60px 20px;
+        text-align: center;
+        color: #666;
+    }
+    
+    .no-results p {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+    
+    .no-results .small {
+        font-size: 1rem;
+        color: #999;
+    }
+    
+    .search-placeholder {
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+        padding: 60px 20px;
+        text-align: center;
+        color: white;
+        font-size: 1.2rem;
+        backdrop-filter: blur(10px);
+    }
+    
+    @media (max-width: 768px) {
+        .users-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .user-card {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .user-actions {
+            width: 100%;
+        }
+        
+        .input-group {
+            flex-direction: column;
+        }
+        
+        .search-btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}

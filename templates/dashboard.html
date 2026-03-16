@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Mini Chat{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <div class="dashboard-header">
+        <h1>Xush kelibsiz, {{ current_user.first_name or current_user.username }}!</h1>
+        <div class="user-status">
+            <span class="status-badge {% if current_user.is_online %}online{% else %}offline{% endif %}">
+                {{ "Online" if current_user.is_online else "Offline" }}
+            </span>
+            <span class="unread-badge">{{ unread_count }} o'qilmagan xabar</span>
+        </div>
+    </div>
+    
+    <div class="dashboard-grid">
+        <!-- Kontaktlar bo'limi -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3>📞 Kontaktlarim</h3>
+                <a href="{{ url_for('contacts') }}" class="card-link">Barchasini ko'rish</a>
+            </div>
+            
+            <div class="contacts-list">
+                {% if contacts %}
+                    {% for contact in contacts[:5] %}
+                        <div class="contact-item">
+                            <div class="contact-info">
+                                <span class="contact-name">{{ contact.first_name or contact.username }}</span>
+                                <span class="contact-status {% if contact.is_online %}online{% endif %}"></span>
+                            </div>
+                            <a href="{{ url_for('chat', user_id=contact.id) }}" class="btn-chat">Chat</a>
+                        </div>
+                    {% endfor %}
+                    
+                    {% if contacts|length > 5 %}
+                        <p class="more-info">va yana {{ contacts|length - 5 }} ta kontakt</p>
+                    {% endif %}
+                {% else %}
+                    <p class="empty-state">Kontaktlar mavjud emas</p>
+                    <a href="{{ url_for('search_users') }}" class="btn btn-secondary">Kontakt qidirish</a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Oxirgi xabarlar -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3>💬 Oxirgi xabarlar</h3>
+            </div>
+            
+            <div class="recent-messages">
+                {% if recent_messages %}
+                    {% for message in recent_messages %}
+                        {% set other_user = message.sender if message.receiver_id == current_user.id else message.receiver %}
+                        <div class="message-preview {% if not message.is_read and message.receiver_id == current_user.id %}unread{% endif %}">
+                            <div class="message-sender">{{ other_user.username }}</div>
+                            <div class="message-content">{{ message.content[:50] }}{% if message.content|length > 50 %}...{% endif %}</div>
+                            <div class="message-time">{{ message.timestamp.strftime('%H:%M') }}</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="empty-state">Hali xabarlar yo'q</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Tezkor qidiruv -->
+        <div class="dashboard-card">
+            <h3>🔍 Foydalanuvchi qidirish</h3>
+            <form action="{{ url_for('search_users') }}" method="GET" class="quick-search">
+                <input type="text" name="search" placeholder="Username, ism yoki email" class="form-control">
+                <button type="submit" class="btn btn-primary">Qidirish</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

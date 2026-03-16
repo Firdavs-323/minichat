@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Bosh sahifa - Mini Chat{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">Mini Chat bilan tanishing</h1>
+        <p class="hero-subtitle">Do'stlaringiz bilan xavfsiz va qulay muloqot qiling</p>
+        
+        <div class="hero-features">
+            <div class="feature">
+                <span class="feature-icon">🔐</span>
+                <h3>Xavfsiz registratsiya</h3>
+                <p>Faqat ro'yxatdan o'tgan foydalanuvchilar chat qilishi mumkin</p>
+            </div>
+            
+            <div class="feature">
+                <span class="feature-icon">👥</span>
+                <h3>Kontaktlar tizimi</h3>
+                <p>Foydalanuvchilarni qidiring va kontaktlarga qo'shing</p>
+            </div>
+            
+            <div class="feature">
+                <span class="feature-icon">💬</span>
+                <h3>Shaxsiy chat</h3>
+                <p>Faqat kontaktlaringiz bilan shaxsiy chat yuriting</p>
+            </div>
+        </div>
+        
+        <div class="hero-buttons">
+            {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary">Ro'yxatdan o'tish</a>
+                <a href="{{ url_for('login') }}" class="btn btn-secondary">Kirish</a>
+            {% else %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Dashboardga o'tish</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mini Chat{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="{{ url_for('index') }}" class="brand-link">
+                    <span class="brand-icon">💬</span>
+                    <span class="brand-text">Mini Chat</span>
+                </a>
+            </div>
+            
+            <div class="nav-menu">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+                    <a href="{{ url_for('contacts') }}" class="nav-link">Kontaktlar</a>
+                    <a href="{{ url_for('search_users') }}" class="nav-link">Qidirish</a>
+                    
+                    <div class="notifications-dropdown">
+                        <button class="notifications-btn" onclick="toggleNotifications()">
+                            🔔
+                            <span class="notification-badge" id="notificationBadge">0</span>
+                        </button>
+                        <div class="notifications-content" id="notificationsContent">
+                            <div class="notifications-header">
+                                <h4>Bildirishnomalar</h4>
+                            </div>
+                            <div class="notifications-list" id="notificationsList">
+                                <p class="no-notifications">Bildirishnomalar yo'q</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="user-menu">
+                        <span class="username">{{ current_user.username }}</span>
+                        <a href="{{ url_for('logout') }}" class="logout-btn">Chiqish</a>
+                    </div>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="nav-link">Kirish</a>
+                    <a href="{{ url_for('register') }}" class="nav-link register-btn">Ro'yxatdan o'tish</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- Flash xabarlar -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                            <button class="close-alert" onclick="this.parentElement.remove()">&times;</button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Asosiy content -->
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <script>
+        // Notifikatsiyalarni olish funksiyasi
+        function checkNotifications() {
+            fetch('/get_notifications')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('notificationBadge');
+                    const list = document.getElementById('notificationsList');
+                    
+                    if (data.length > 0) {
+                        badge.textContent = data.length;
+                        badge.style.display = 'inline';
+                        
+                        let html = '';
+                        data.forEach(notif => {
+                            html += `
+                                <a href="/mark_notification_read/${notif.id}" class="notification-item ${notif.type}">
+                                    <div class="notification-message">${notif.message}</div>
+                                    <div class="notification-time">${notif.created_at}</div>
+                                </a>
+                            `;
+                        });
+                        list.innerHTML = html;
+                    } else {
+                        badge.style.display = 'none';
+                        list.innerHTML = '<p class="no-notifications">Bildirishnomalar yo\'q</p>';
+                    }
+                });
+        }
+        
+        function toggleNotifications() {
+            const content = document.getElementById('notificationsContent');
+            content.classList.toggle('show');
+        }
+        
+        // Har 10 sekundda notifikatsiyalarni tekshirish
+        if ({{ 'true' if current_user.is_authenticated else 'false' }}) {
+            setInterval(checkNotifications, 10000);
+            // Sahifa yuklanganda bir marta tekshirish
+            document.addEventListener('DOMContentLoaded', checkNotifications);
+        }
+        
+        // Click outside to close notifications
+        window.onclick = function(event) {
+            if (!event.target.matches('.notifications-btn')) {
+                const dropdowns = document.getElementsByClassName('notifications-content');
+                for (let i = 0; i < dropdowns.length; i++) {
+                    if (dropdowns[i].classList.contains('show')) {
+                        dropdowns[i].classList.remove('show');
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Chat - {{ other_user.username }}{% endblock %}
+
+{% block content %}
+<div class="chat-room">
+    <div class="chat-header">
+        <div class="chat-user-info">
+            <span class="chat-username">{{ other_user.first_name or other_user.username }}</span>
+            <span class="chat-status {% if other_user.is_online %}online{% endif %}">
+                {{ "Online" if other_user.is_online else "Offline" }}
+            </span>
+        </div>
+        <a href="{{ url_for('contacts') }}" class="back-btn">← Kontaktlarga qaytish</a>
+    </div>
+    
+    <div class="messages-container" id="messagesContainer">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message-wrapper {% if message.sender_id == current_user.id %}sent{% else %}received{% endif %}">
+                    <div class="message-bubble">
+                        <div class="message-content">{{ message.content }}</div>
+                        <div class="message-time">{{ message.timestamp.strftime('%H:%M') }}</div>
+                        {% if message.sender_id == current_user.id and message.is_read %}
+                            <span class="read-receipt" title="O'qildi">✓✓</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-chat">
+                <p>Hali xabarlar yo'q. Birinchi xabarni yozing!</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="message-input-container">
+        <form id="messageForm" method="POST" action="" class="message-form">
+            {{ form.hidden_tag() }}
+            
+            <div class="input-group">
+                {{ form.content(id="messageInput", class="form-control", placeholder="Xabaringizni yozing...", rows="2") }}
+                <button type="submit" class="send-btn">Yuborish</button>
+            </div>
+            
+            <div id="sendError" class="error-message" style="display: none;"></div>
+            {% if form.content.errors %}
+                {% for error in form.content.errors %}
+                    <span class="error-message">{{ error }}</span>
+                {% endfor %}
+            {% endif %}
+        </form>
+        
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+</div>
+
+<script>
+// Scrollni pastga tushirish
+function scrollToBottom() {
+    const container = document.getElementById('messagesContainer');
+    container.scrollTop = container.scrollHeight;
+}
+
+// Sahifa yuklanganda pastga tushirish
+scrollToBottom();
+
+// AJAX bilan xabar yuborish
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('messageForm');
+    const input = document.getElementById('messageInput');
+    const errorDiv = document.getElementById('sendError');
+    
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        const userId = {{ other_user.id | safe }};
+        
+        try {
+            const response = await fetch(`/chat/${userId}`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Inputni tozalash
+                input.value = '';
+                errorDiv.style.display = 'none';
+                scrollToBottom();
+            } else {
+                errorDiv.textContent = data.error || 'Xabar yuborishda xatolik';
+                errorDiv.style.display = 'block';
+            }
+        } catch (error) {
+            errorDiv.textContent = 'Ulanishda xatolik';
+            errorDiv.style.display = 'block';
+            console.error('Xabar yuborishda xato:', error);
+        }
+    });
+});
+
+// Yangi xabarlarni tekshirish (faqat yangi xabar bo'lsa reload)
+function checkNewMessages() {
+    const userId = {{ other_user.id | safe }};
+    fetch(`/api/check_new_messages/${userId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.new_count > 0) {
+                location.reload();
+            }
+        })
+        .catch(error => console.error('Xabar tekshirishda xato:', error));
+}
+
+// Har 5 sekundda tekshirish (less aggressive)
+setInterval(checkNewMessages, 5000);
+
+
+
+</script>
+{% endblock %}
