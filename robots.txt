@@ -1,0 +1,8 @@
+from fastapi.responses import PlainTextResponse
+
+@app.get("/robots.txt", response_class=PlainTextResponse)
+def robots():
+    return """User-agent: *
+Allow: /
+Sitemap: https://yourusername.pythonanywhere.com/sitemap.xml
+"""

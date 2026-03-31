@@ -15,6 +15,18 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Ma'lumotlar bazasini ishga tushirish
 db.init_app(app)
 
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+
+app = FastAPI()
+
+app.mount("/", StaticFiles(directory="static"), name="static")
+
+from fastapi.responses import FileResponse
+
+@app.get("/google99cf4ddc10057615.html")
+def verify():
+    return FileResponse("static/google99cf4ddc10057615.html")
 # Login Manager
 login_manager = LoginManager()
 login_manager.init_app(app)
