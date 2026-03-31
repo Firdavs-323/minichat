@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://minichat.pythonanywhere.com/sitemap.xml
