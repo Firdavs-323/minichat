@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Uzgram">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1f6feb"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="170" cy="150" r="70" fill="#ffffff" fill-opacity="0.1"/>
+  <circle cx="1030" cy="480" r="120" fill="#ffffff" fill-opacity="0.08"/>
+  <rect x="110" y="185" width="980" height="260" rx="36" fill="#ffffff" fill-opacity="0.1"/>
+  <text x="120" y="270" fill="#ffffff" font-size="72" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Uzgram</text>
+  <text x="120" y="345" fill="#dbeafe" font-size="34" font-family="Segoe UI, Arial, sans-serif">
+    Account yarating, kontakt qo'shing va do'stlaringiz bilan chat qiling
+  </text>
+  <text x="120" y="405" fill="#bfdbfe" font-size="28" font-family="Segoe UI, Arial, sans-serif">
+    Flask asosidagi o'zbekcha mini chat platformasi
+  </text>
+</svg>

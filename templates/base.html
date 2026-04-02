@@ -3,30 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Mini Chat{% endblock %}</title>
+    <title>{% block title %}{{ seo_title }}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{{ seo_description }}{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}{{ seo_keywords }}{% endblock %}">
+    <meta name="robots" content="{{ seo_robots }}">
+    <meta name="google-site-verification" content="{{ google_verification_token }}">
+    <link rel="canonical" href="{{ seo_canonical }}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Uzgram">
+    <meta property="og:title" content="{{ seo_title }}">
+    <meta property="og:description" content="{{ seo_description }}">
+    <meta property="og:url" content="{{ seo_canonical }}">
+    <meta property="og:image" content="{{ seo_image }}">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ seo_title }}">
+    <meta name="twitter:description" content="{{ seo_description }}">
+    <meta name="twitter:image" content="{{ seo_image }}">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <meta name="google-site-verification" content="28o4FvcEoq-aOkqYVOqGLSGuTUKcGDj-nH7rP_cKmtE" />
-    <meta name="description" content="MiniChat - tezkor va oson onlayn chat platforma.">
-    <meta name="keywords" content="chat, online chat, messaging, minichat">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://minichat.pythonanywhere.com/">
-    </head>
+
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "{{ seo_schema_type }}",
+            "name": "Uzgram",
+            "url": "{{ site_url }}",
+            "description": "{{ seo_description }}",
+            "applicationCategory": "CommunicationApplication",
+            "operatingSystem": "Web",
+            "image": "{{ seo_image }}"
+        }
+    </script>
+</head>
 <body>
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-brand">
                 <a href="{{ url_for('index') }}" class="brand-link">
                     <span class="brand-icon">💬</span>
-                    <span class="brand-text">Mini Chat</span>
+                    <span class="brand-text">Uzgram</span>
                 </a>
             </div>
-            
+
             <div class="nav-menu">
                 {% if current_user.is_authenticated %}
                     <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
                     <a href="{{ url_for('contacts') }}" class="nav-link">Kontaktlar</a>
                     <a href="{{ url_for('search_users') }}" class="nav-link">Qidirish</a>
-                    
+
                     <div class="notifications-dropdown">
                         <button class="notifications-btn" onclick="toggleNotifications()">
                             🔔
@@ -41,7 +67,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="user-menu">
                         <span class="username">{{ current_user.username }}</span>
                         <a href="{{ url_for('logout') }}" class="logout-btn">Chiqish</a>
@@ -56,7 +82,6 @@
 
     <main class="main-content">
         <div class="container">
-            <!-- Flash xabarlar -->
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
@@ -68,24 +93,26 @@
                 {% endif %}
             {% endwith %}
 
-            <!-- Asosiy content -->
             {% block content %}{% endblock %}
         </div>
     </main>
 
     <script>
-        // Notifikatsiyalarni olish funksiyasi
         function checkNotifications() {
             fetch('/get_notifications')
                 .then(response => response.json())
                 .then(data => {
                     const badge = document.getElementById('notificationBadge');
                     const list = document.getElementById('notificationsList');
-                    
+
+                    if (!badge || !list) {
+                        return;
+                    }
+
                     if (data.length > 0) {
                         badge.textContent = data.length;
                         badge.style.display = 'inline';
-                        
+
                         let html = '';
                         data.forEach(notif => {
                             html += `
@@ -98,24 +125,23 @@
                         list.innerHTML = html;
                     } else {
                         badge.style.display = 'none';
-                        list.innerHTML = '<p class="no-notifications">Bildirishnomalar yo\'q</p>';
+                        list.innerHTML = '<p class="no-notifications">Bildirishnomalar yo\\'q</p>';
                     }
                 });
         }
-        
+
         function toggleNotifications() {
             const content = document.getElementById('notificationsContent');
-            content.classList.toggle('show');
+            if (content) {
+                content.classList.toggle('show');
+            }
         }
-        
-        // Har 10 sekundda notifikatsiyalarni tekshirish
+
         if ({{ 'true' if current_user.is_authenticated else 'false' }}) {
             setInterval(checkNotifications, 10000);
-            // Sahifa yuklanganda bir marta tekshirish
             document.addEventListener('DOMContentLoaded', checkNotifications);
         }
-        
-        // Click outside to close notifications
+
         window.onclick = function(event) {
             if (!event.target.matches('.notifications-btn')) {
                 const dropdowns = document.getElementsByClassName('notifications-content');

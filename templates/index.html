@@ -1,33 +1,33 @@
 {% extends "base.html" %}
 
-{% block title %}Bosh sahifa - Mini Chat{% endblock %}
+{% block title %}{{ seo_title }}{% endblock %}
 
 {% block content %}
 <div class="hero-section">
     <div class="hero-content">
-        <h1 class="hero-title">Mini Chat bilan tanishing</h1>
-        <p class="hero-subtitle">Do'stlaringiz bilan xavfsiz va qulay muloqot qiling</p>
-        
+        <h1 class="hero-title">Uzgram bilan account yarating va do'stlaringiz bilan chat qiling</h1>
+        <p class="hero-subtitle">Flask asosidagi o'zbekcha mini chat platformasi orqali kontakt qo'shing, online gaplashing va qulay muloqot qiling</p>
+
         <div class="hero-features">
             <div class="feature">
                 <span class="feature-icon">🔐</span>
-                <h3>Xavfsiz registratsiya</h3>
-                <p>Faqat ro'yxatdan o'tgan foydalanuvchilar chat qilishi mumkin</p>
+                <h3>Xavfsiz ro'yxatdan o'tish</h3>
+                <p>Har bir foydalanuvchi account yaratib, tizimga kirgandan keyin o'z chat muhitiga ega bo'ladi</p>
             </div>
-            
+
             <div class="feature">
                 <span class="feature-icon">👥</span>
-                <h3>Kontaktlar tizimi</h3>
-                <p>Foydalanuvchilarni qidiring va kontaktlarga qo'shing</p>
+                <h3>Kontaktlar boshqaruvi</h3>
+                <p>Do'stlaringizni qidiring, kontaktga qo'shing va faqat kerakli odamlar bilan aloqada bo'ling</p>
             </div>
-            
+
             <div class="feature">
                 <span class="feature-icon">💬</span>
-                <h3>Shaxsiy chat</h3>
-                <p>Faqat kontaktlaringiz bilan shaxsiy chat yuriting</p>
+                <h3>Shaxsiy online chat</h3>
+                <p>Oddiy va tushunarli interfeys orqali do'stlaringiz bilan tezkor xabar almashing</p>
             </div>
         </div>
-        
+
         <div class="hero-buttons">
             {% if not current_user.is_authenticated %}
                 <a href="{{ url_for('register') }}" class="btn btn-primary">Ro'yxatdan o'tish</a>
@@ -36,6 +36,14 @@
                 <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Dashboardga o'tish</a>
             {% endif %}
         </div>
+
+        <section class="seo-copy" style="margin-top: 48px; text-align: left; background: rgba(255,255,255,0.08); padding: 32px; border-radius: 24px; backdrop-filter: blur(10px);">
+            <h2>Uzgram mini chat platformasi haqida</h2>
+            <p>Uzgram bu Flask asosida yaratilgan mini chat web ilova bo'lib, foydalanuvchilarga account yaratish, tizimga kirish, do'stlarini kontaktga qo'shish va ular bilan qulay tarzda xabar almashish imkonini beradi. Agar siz chat app Uzbekistan yoki online chat python flask kabi yechim qidirayotgan bo'lsangiz, Uzgram oddiy interfeys, aniq mantiq va foydalanishga oson tizim bilan ajralib turadi. Loyiha maqsadi foydalanuvchilarni bir-biri bilan xavfsiz bog'lash va web orqali tezkor muloqotni soddalashtirishdir.</p>
+            <p>Bugungi foydalanuvchi uchun oddiy messenger yetarli emas, unga qulay registratsiya, ishonchli login, foydalanuvchi qidirish va kontaktlar asosida chat qilish kabi imkoniyatlar kerak bo'ladi. Uzgram aynan shu ehtiyojga mos keladi. Bu python flask chat app ichida har bir odam o'z profilingizni yaratadi, kerakli insonni topadi va private chat orqali muloqotni boshlaydi. Telegramga o'xshash chat, instagramga o'xshash direct message yoki lightweight chat application qidirayotganlar uchun Uzgram sodda va tushunarli tajriba beradi.</p>
+            <p>Platformaning muhim tomoni shundaki, bu yerda do'stlar bilan onlayn chat nazorat qilinadigan tartibda amalga oshadi. Faqat ro'yxatdan o'tgan foydalanuvchilar tizim ichiga kiradi, kontaktlar ro'yxatini shakllantiradi va keyin shaxsiy xabar almashadi. Shu sababli Uzgram secure messaging Uzbekistan, contact based chat app, web based chat system va uzbek messenger app kabi qidiruvlarga ham mos tushadi. Bu loyiha Flask messaging app sifatida ishlaydi va Python web chat yechimi sifatida yengil, tez va amaliy ko'rinish beradi.</p>
+            <p>Uzgram chat platformasi ayniqsa o'zbek tilida ishlaydigan, sodda va zamonaviy chat website flask yechimini izlayotgan foydalanuvchilar uchun foydali. Siz bu yerda account ochishingiz, kontaktlar bilan bog'lanishingiz va do'stlaringiz bilan kundalik muloqotni davom ettirishingiz mumkin. Uzgram pythonanywhere domenida ishlaydigan mini chat platformasi sifatida Google qidiruvida chat app uzbekistan, flask social chat project, online chat uzbekistan va uzgram chat kabi kalit so'zlar bo'yicha topilishi oson bo'lishi uchun optimallashtirilgan.</p>
+        </section>
     </div>
 </div>
 {% endblock %}

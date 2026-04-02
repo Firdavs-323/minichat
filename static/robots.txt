@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
+Disallow: /dashboard
+Disallow: /contacts
+Disallow: /chat/
+Disallow: /search_users
 
-Sitemap: https://minichat.pythonanywhere.com/sitemap.xml
+Sitemap: https://uzgram.pythonanywhere.com/sitemap.xml
