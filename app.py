@@ -147,33 +147,7 @@ def index():
         ),
     )
 
-@app.route('/robots.txt')
-def robots():
-    return app.send_static_file('robots.txt')
-
 from flask import Response
-
-@app.route("/sitemap.xml")
-def sitemap():
-    pages = []
-
-    pages.append("https://minichat.pythonanywhere.com/")
-    pages.append("https://minichat.pythonanywhere.com/login")
-    pages.append("https://minichat.pythonanywhere.com/register")
-
-    sitemap_xml = ['<?xml version="1.0" encoding="UTF-8"?>']
-    sitemap_xml.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
-
-    for page in pages:
-        sitemap_xml.append(f"""
-        <url>
-            <loc>{page}</loc>
-        </url>
-        """)
-
-    sitemap_xml.append('</urlset>')
-
-    return Response("\n".join(sitemap_xml), mimetype='application/xml')
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
